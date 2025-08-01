@@ -34135,10 +34135,36 @@
       static renderItems(items, html, activeContentTitle, onItemClick, renderItems) {
           return items.map((item) => {
               if ('items' in item && Array.isArray(item.items)) {
+                  // For container items, render as a clickable header with nested items always visible
                   return html `
-          <sl-details summary=${item.title}>
-            ${renderItems(item.items)}
-          </sl-details>
+          <div class="nav-container">
+            <div
+              class="nav-container-header"
+              style=${activeContentTitle === item.label
+                    ? 'font-weight: 600; background-color: var(--sl-color-primary-50); color: var(--sl-color-primary-800); padding: 0.5rem; border-radius: var(--sl-border-radius-small); cursor: pointer; margin-bottom: 0.5rem;'
+                    : 'font-weight: 500; padding: 0.5rem; border-radius: var(--sl-border-radius-small); cursor: pointer; transition: background-color 0.2s ease; margin-bottom: 0.5rem;'}
+              @click=${() => onItemClick(item)}
+              @mouseover=${(e) => {
+                    if (activeContentTitle !== item.label) {
+                        e.target.style.backgroundColor = 'var(--sl-color-neutral-50)';
+                    }
+                }}
+              @mouseout=${(e) => {
+                    if (activeContentTitle !== item.label) {
+                        e.target.style.backgroundColor = 'transparent';
+                    }
+                }}
+            >
+              <sl-icon
+                name=${item.complete ? 'check-circle' : 'folder'}
+                style="color: ${item.complete ? 'var(--sl-color-success-600)' : 'var(--sl-color-primary-600)'}"
+              ></sl-icon>
+              ${item.title || item.label}
+            </div>
+            <div class="nav-container-children" style="margin-left: 1rem;">
+              ${renderItems(item.items)}
+            </div>
+          </div>
         `;
               }
               else {
@@ -35035,6 +35061,30 @@
     /* Spacing for standalone navigation items after collapsible containers */
     .nav-subchapter-title {
       margin-top: 0.5rem !important;
+    }
+
+    /* Navigation container styling */
+    .nav-container {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-container-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--body-font);
+      border: 1px solid var(--sl-color-neutral-200);
+      border-radius: var(--sl-border-radius-medium);
+    }
+
+    .nav-container-header:hover {
+      border-color: var(--sl-color-primary-300);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-container-children {
+      border-left: 2px solid var(--sl-color-neutral-200);
+      padding-left: 0.5rem;
     }
 
     .sidebar {
